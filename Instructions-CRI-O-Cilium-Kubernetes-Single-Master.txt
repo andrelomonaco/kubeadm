@@ -63,10 +63,11 @@ sudo timedatectl set-timezone America/Sao_Paulo
 
 timedatectl status
 
-# Install dialog and ufw to avoid error msgs if using Server Minimal image
+# Install dialog and ufw to avoid error msgs if using server minimal installation
 
 sudo apt update
-sudo apt-get install dialog apt-utils ufw 
+sudo apt-get install whiptail apt-utils ufw 
+
 
 # Upgrade and Reboot
 
