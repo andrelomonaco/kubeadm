@@ -79,6 +79,7 @@ sudo reboot
 # Firewall rules in Linux are applied in the order they are listed. 
 # When you start a container, the Container Runtime will insert the rules yourvcontainers need before existing rules and the rule-set you maintain with ufw.
 # In other words Container Runtime exposing a port takes precedence over a subsequent ufw rules closing a particular port.
+# Enabling Hubble requires the TCP port 4244 to be open on all nodes running Cilium. This is required for Relay to operate correctly.
 
 sudo ufw allow 22/tcp
 
@@ -87,6 +88,7 @@ sudo ufw allow 2379:2380/tcp
 sudo ufw allow 10250/tcp
 sudo ufw allow 10259/tcp
 sudo ufw allow 10257/tcp
+sudo ufw allow 4244/tcp
 
 sudo ufw enable
 sudo ufw status
