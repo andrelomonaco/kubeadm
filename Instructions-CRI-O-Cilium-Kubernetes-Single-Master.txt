@@ -1,4 +1,4 @@
-# Instructions to install a single master node K8s cluster with Ubuntu 22.04, CRI-O, Cilium and Kubernetes
+# Instructions to install a single master node K8s cluster with Ubuntu 22.04 (Don't use server minimal installation), CRI-O, Cilium and Kubernetes
 #
 #
 # Copyright (c) 2023-2023 K8SEC.COM.BR
@@ -63,12 +63,6 @@ sudo timedatectl set-timezone America/Sao_Paulo
 
 timedatectl status
 
-# Install dialog and ufw to avoid error msgs if using server minimal installation
-
-sudo apt update
-sudo apt-get install whiptail apt-utils ufw 
-
-
 # Upgrade and Reboot
 
 sudo apt update && sudo apt -y full-upgrade
@@ -82,6 +76,9 @@ sudo reboot
 # Port 10250 for the Kubelet API.
 # Port 10259 for the kube scheduler.
 # Port 10257 for the Kube controller manager.
+# Firewall rules in Linux are applied in the order they are listed. 
+# When you start a container, the Container Runtime will insert the rules yourvcontainers need before existing rules and the rule-set you maintain with ufw.
+# In other words Container Runtime exposing a port takes precedence over a subsequent ufw rules closing a particular port.
 
 sudo ufw allow 22/tcp
 
