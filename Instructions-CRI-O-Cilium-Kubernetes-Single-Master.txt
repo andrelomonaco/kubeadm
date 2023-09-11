@@ -215,6 +215,10 @@ sudo apt-get update
 sudo apt-get install -y kubelet kubeadm kubectl
 sudo apt-mark hold kubelet kubeadm kubectl
 
+ONLY MASTER
+ONLY MASTER
+ONLY MASTER
+
 # Install Cluster
 # Only Master
 # Record the kubeadm join statement to use in workers lately
@@ -240,11 +244,15 @@ cilium install --version 1.14.1
 kubectl get nodes
 kubectl get pod -A
 
+ONLY NEW WORKERS NODE
+ONLY NEW WORKERS NODE
+
 # Execute the following only in new workers to join cluster
 
 sudo su -
 
 # Use the command provided by kubeadm init
+# If necessary execute kubeadm token create --print-join-command on master
 
 kube join ..........
 
