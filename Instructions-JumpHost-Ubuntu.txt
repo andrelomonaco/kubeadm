@@ -55,3 +55,29 @@ kubectl expose deploy nginx-web-server --port 80 --type NodePort
 # Try to access nginx web server from master and from all worker and master nodes.
 # Remember by default NodePort are configured in all Kubernetes nodes (Workers, Masters and Infra)
 
+# Install PODMAN
+
+sudo apt-get update
+sudo apt-get -y install podman
+
+# Set Podman registries conf
+# By default there will be no repository to fetch and install container Images by Podman, hence we need to do that manually 
+# so that we can use popular repositories such as Docker.io, Redhat, and Fedora.
+
+# Edit Registry configuration file, scroll to the end of the file
+ 
+sudo vim /etc/containers/registries.conf
+
+# Paste the following lines:
+
+[registries.search]
+registries=["registry.access.redhat.com", "registry.fedoraproject.org", "docker.io"]
+
+
+
+
+
+
+
+
+
