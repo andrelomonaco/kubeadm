@@ -80,6 +80,7 @@ sudo reboot
 # When you start a container, the Container Runtime will insert the rules yourvcontainers need before existing rules and the rule-set you maintain with ufw.
 # In other words Container Runtime exposing a port takes precedence over a subsequent ufw rules closing a particular port.
 # Enabling Hubble requires the TCP port 4244 to be open on all nodes running Cilium. This is required for Relay to operate correctly.
+# Port 8472 for overlay network, VxLAN backend (master and worker nodes)
 
 sudo ufw allow 22/tcp
 
@@ -89,6 +90,7 @@ sudo ufw allow 10250/tcp
 sudo ufw allow 10259/tcp
 sudo ufw allow 10257/tcp
 sudo ufw allow 4244/tcp
+sudo ufw allow 8472/udp
 
 sudo ufw enable
 sudo ufw status
