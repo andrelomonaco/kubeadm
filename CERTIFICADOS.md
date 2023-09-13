@@ -12,7 +12,25 @@ Por padrao kubeadm cria todos os certificados necessarios para a implementacao d
 Para verificar a expiracao dos certificados utilizar o seguinte comando
 
 ```
-kubeadm certs check-expiration
+sudo kubeadm certs check-expiration
+
+CERTIFICATE                EXPIRES                  RESIDUAL TIME   CERTIFICATE AUTHORITY   EXTERNALLY MANAGED
+admin.conf                 Sep 10, 2024 16:33 UTC   362d            ca                      no
+apiserver                  Sep 10, 2024 16:33 UTC   362d            ca                      no
+apiserver-etcd-client      Sep 10, 2024 16:33 UTC   362d            etcd-ca                 no
+apiserver-kubelet-client   Sep 10, 2024 16:33 UTC   362d            ca                      no
+controller-manager.conf    Sep 10, 2024 16:33 UTC   362d            ca                      no
+etcd-healthcheck-client    Sep 10, 2024 16:33 UTC   362d            etcd-ca                 no
+etcd-peer                  Sep 10, 2024 16:33 UTC   362d            etcd-ca                 no
+etcd-server                Sep 10, 2024 16:33 UTC   362d            etcd-ca                 no
+front-proxy-client         Sep 10, 2024 16:33 UTC   362d            front-proxy-ca          no
+scheduler.conf             Sep 10, 2024 16:33 UTC   362d            ca                      no
+
+CERTIFICATE AUTHORITY   EXPIRES                  RESIDUAL TIME   EXTERNALLY MANAGED
+ca                      Sep 08, 2033 16:33 UTC   9y              no
+etcd-ca                 Sep 08, 2033 16:33 UTC   9y              no
+front-proxy-ca          Sep 08, 2033 16:33 UTC   9y              no
+
 ```
 
 # Cluster CA
