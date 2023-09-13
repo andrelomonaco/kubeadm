@@ -5,6 +5,8 @@ de um cluster Kubernetes.
 
 Lembrando que estes componentes nao necessariamente estao no mesmo node, tendo que utilizar a rede externa para esta comunicacao.
 
+Por padrao kubeadm cria todos os certificados necessarios para a implementacao de um cluster, mas e possivel fornecer os proprios certificados durante a instalacao.
+
 ![image](https://github.com/andrelomonaco/kubeadm/assets/48954728/0c64adf6-c9b1-41aa-ae22-172839687455)
 
 
