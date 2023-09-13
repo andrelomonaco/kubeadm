@@ -10,9 +10,9 @@ Lembrando que estes componentes nao necessariamente estao no mesmo node, tendo q
 
 # Cluster CA
 
-Cluster Certificate Authority is the trusted root for the entire cluster
-All cluster certificates are signed by the Cluster CA
-Used by components to validate API Server, etc 
+- Cluster Certificate Authority is the trusted root for the entire cluster
+- All cluster certificates are signed by the Cluster CA
+- Used by components to validate API Server, etc 
 
 
 # Links 
