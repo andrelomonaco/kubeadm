@@ -7,6 +7,14 @@ Lembrando que estes componentes nao necessariamente estao no mesmo node, tendo q
 
 ![image](https://github.com/andrelomonaco/kubeadm/assets/48954728/0c64adf6-c9b1-41aa-ae22-172839687455)
 
+
+# Cluster CA
+
+Cluster Certificate Authority is the trusted root for the entire cluster
+All cluster certificates are signed by the Cluster CA
+Used by components to validate API Server, etc 
+
+
 # Links 
 
 All You Need to Know About Certificates in Kubernetes
