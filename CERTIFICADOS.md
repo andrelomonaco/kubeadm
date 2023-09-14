@@ -71,12 +71,13 @@ front-proxy-ca          Sep 08, 2033 16:33 UTC   9y              no
 
 Each Kubernetes core componenet has its own client certificate
 
-| Component | Common Name | Organizations
-| --- | --- |
+
+| Component | Common Name | Organizations |
+| --- | --- | --- |
 | Controller Manager | system:kube-controller-manager |
 | Scheduller | system:kube-scheduler |
 | Kube Proxy | system:kube-proxy |
-| Kubelet | system:node:${hostname} | system:nodes
+| Kubelet | system:node:${hostname} | system:nodes |
 
 # Kubelet Client Certificates
 
