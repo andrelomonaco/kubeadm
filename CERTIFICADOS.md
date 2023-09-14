@@ -55,6 +55,19 @@ front-proxy-ca          Sep 08, 2033 16:33 UTC   9y              no
 - Load balancer's DNS name and IP address should be part of the certificate's
 - Subject Alternative Name (SAN) field
 
+# Kubelet HTTPS
+
+- The Kubelet exposes an API over HTTPS
+- Consumed by API server when getting logs, metrics, exec, etc
+- Serving certificate and key are required for HTTPS
+- Certificate is signed by Cluster CA
+- API server authenticates the Kubelet
+
+- Access to the Kubelet API is protected by authentication and authorization
+- The Kubelet authenticates clients using client certificates
+- API server has a Kubelet client certificate that is signed by Cluster CA
+
+
 # Links 
 
 All You Need to Know About Certificates in Kubernetes
