@@ -67,6 +67,44 @@ front-proxy-ca          Sep 08, 2033 16:33 UTC   9y              no
 - The Kubelet authenticates clients using client certificates
 - API server has a Kubelet client certificate that is signed by Cluster CA
 
+# X.590 Client Cert Authentication
+
+Each Kubernetes core componenet has its own client certificate
+
+| Component | Common Name | Organizations
+| --- | --- |
+| Controller Manager | system:kube-controller-manager |
+| Scheduller | system:kube-scheduler |
+| Kube Proxy | system:kube-proxy |
+| Kubelet | system:node:${hostname} | system:nodes
+
+# Kubelet Client Certificates
+
+Each Kubelet on the cluster has its own identity
+Achieved by having Kubelet-specific client certificates
+Enable the use of the Node Auhtorizes and Node Restriction Admission Plugin
+Limit Kubelet read and write access to resources that are related to the node itsefl and pods bound to the node
+
+Kubelet can request a new client certificate when the current one is nearing expiration
+
+# Kubelet Cert Bootstrapping
+
+The Kubelet needs a client certificate to access the API server
+It also needs a serving certificate for its own API
+Instead of the admin having to generate certificates for each Kubelet, the Kubelet can request certificates
+as it start up
+Built on top of the Certificates API and Boostrap token authenticator
+
+# Certificate Revocation Lists
+
+Kubernetes does not currently support CRLs
+Can use RBAC to "revoke" them
+
+# Ingress
+
+TLS can be configured for services exposed during Ingress
+Define a secret with a certificate and private key, and reference in in the ingress resource
+cert-manager: Auto cert generation using Let's Encrypt for Ingress
 
 # Links 
 
@@ -78,3 +116,9 @@ https://kubernetes.io/docs/concepts/overview/components
 
 PKI certificates and requirements
 https://kubernetes.io/docs/setup/best-practices/certificates
+
+TLS bootstrapping
+https://kubernetes.io/docs/reference/access-authn-authz/kubelet-tls-bootstrapping/
+
+cert-manager (previous kube-lego)
+https://cert-manager.io/
