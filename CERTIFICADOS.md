@@ -107,6 +107,23 @@ TLS can be configured for services exposed during Ingress
 Define a secret with a certificate and private key, and reference in in the ingress resource
 cert-manager: Auto cert generation using Let's Encrypt for Ingress
 
+# Certificates Resume
+
+
+| Component | Certificate | Purpose | Localization |
+| API server | Cluster CA | Authenticate clients, TLS | Verify |
+| API server | ETCD CA | ETCD Server Authentication | Verify |
+| API server | ETCD Client cert | ETCD Client Authentication | Verify |
+| API server | Serving certificate | Serving API over HTTPS |  Verify |
+| API Server | Kubelet client cert | Authentication against Kubelet | Verify |
+| Controller Manager | Client certificate | Authentication against API Server | Verify |
+| Scheduler | Client certificate | Authentication against API Server | Verify |
+| Kubelet | Serving certificate | Serving API over HTTPS | Verify |
+| Kubelet | Client certificate | Authentication against API Server | Verify |
+| Kubelet | Cluster CA | Authentication clients | Verify |
+| Kube Proxy | Client certificate | Authentication against API server | Verify |
+
+
 # Links 
 
 All You Need to Know About Certificates in Kubernetes
