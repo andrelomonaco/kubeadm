@@ -9,6 +9,8 @@ Por padrao kubeadm cria todos os certificados necessarios para a implementacao d
 
 ![image](https://github.com/andrelomonaco/kubeadm/assets/48954728/0c64adf6-c9b1-41aa-ae22-172839687455)
 
+Por padrao os certificados sao criados com expiracao de 1 ano, porem ao se utilizar o kubeadm para uma atualizacao os certificados sao renovados automaticamente.
+
 Para verificar a expiracao dos certificados utilizar o seguinte comando
 
 ```
