@@ -112,17 +112,17 @@ cert-manager: Auto cert generation using Let's Encrypt for Ingress
 
 | Component | Certificate | Purpose | Localization |
 | --- | --- | ---- | --- |
-| API server | Cluster CA | Authenticate clients, TLS | Verify |
-| API server | ETCD CA | ETCD Server Authentication | Verify |
-| API server | ETCD Client cert | ETCD Client Authentication | Verify |
-| API server | Serving certificate | Serving API over HTTPS |  Verify |
-| API Server | Kubelet client cert | Authentication against Kubelet | Verify |
-| Controller Manager | Client certificate | Authentication against API Server | Verify |
-| Scheduler | Client certificate | Authentication against API Server | Verify |
-| Kubelet | Serving certificate | Serving API over HTTPS | Verify |
-| Kubelet | Client certificate | Authentication against API Server | Verify |
-| Kubelet | Cluster CA | Authentication clients | Verify |
-| Kube Proxy | Client certificate | Authentication against API server | Verify |
+| API server | Cluster CA | Authenticate clients, TLS | /etc/kubernetes/pki/ca.crt |
+| API server | ETCD CA | ETCD Server Authentication | /etc/kubernetes/pki/etcd/ca.crt |
+| API server | ETCD Client cert | ETCD Client Authentication | apiserver-etcd-client.crt |
+| API server | Serving certificate | Serving API over HTTPS |   apiserver.crt |
+| API Server | Kubelet client cert | Authentication against Kubelet | apiserver-kubelet-client.crt|
+| Controller Manager | Client certificate | Authentication against API Server | /etc/kubernetes/scheduler.conf |
+| Scheduler | Client certificate | Authentication against API Server | /etc/kubernetes/controller-manager.conf |
+| Kubelet | Serving certificate | Serving API over HTTPS | /var/lib/kubelet/pki/kubelet.crt|
+| Kubelet | Client certificate | Authentication against API Server | /var/lib/kubelet/pki/kubelet-client-current.pem |
+| Front Proxy| Front Proxy CA | | /etc/kubernetes/pki/front-proxy-ca.crt |
+| Front Proxy| Front Proxy Client | | /etc/kubernetes/pki/front-proxy-client.crt |
 
 
 # Links 
