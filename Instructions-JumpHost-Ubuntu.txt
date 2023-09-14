@@ -73,6 +73,32 @@ sudo vim /etc/containers/registries.conf
 [registries.search]
 registries=["registry.access.redhat.com", "registry.fedoraproject.org", "docker.io"]
 
+# Kubernetes tutorial | Tips and Tricks | Linux Bash | Cursor Column, Alias, Auto Completion
+# https://www.youtube.com/watch?v=cboYDZd9DlE
+
+# Indentation & Cursor Column for YAML files
+# Bash Auto Completion
+# Kubectl Alias
+
+sudo apt update
+sudo apt install vim
+
+vim .vimrc
+set ts=2 et cursorcolumn
+source .vimrc
+echo "source .vimrc" >> ~/.bashrc
+
+sudo apt update
+sudo apt install bash-completion
+
+source <(kubectl completion bash)
+echo "source <(kubectl completion bash)" >> ~/.bashrc
+
+alias k=kubectl
+complete -o default -F__start_kubectl k
+
+echo "alias k=kubectl" >> ~/.bashrc
+echo "complete -o default -F__start_kubectl k" >> ~/.bashrc
 
 
 
