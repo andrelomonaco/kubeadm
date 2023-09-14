@@ -39,6 +39,19 @@ front-proxy-ca          Sep 08, 2033 16:33 UTC   9y              no
 - All cluster certificates are signed by the Cluster CA
 - Used by components to validate API Server, etc 
 
+# API Server HTTPS
+
+- Serving certificate and key are required for HTTPS
+- Serving certificate is signed by Cluster CA
+- Componentes authenticate the API server
+- Configured using --tls-cert-file and --tls-private-key-file flags
+
+# HA Considerations
+
+- Multiple API servers must be fronted with a load balancer
+- Each master has its own certificate
+- Load balancer's DNS name and IP address should be part of the certificate's
+- Subject Alternative Name (SAN) field
 
 # Links 
 
