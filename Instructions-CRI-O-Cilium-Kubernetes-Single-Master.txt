@@ -15,6 +15,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+source /etc/lsb-release
+if [ "$DISTRIB_RELEASE" != "22.04" ]; then
+    echo "################################# "
+    echo "############ WARNING ############ "
+    echo "################################# "
+    echo
+    echo "This script only works on Ubuntu 20.04!"
+    echo "You're using: ${DISTRIB_DESCRIPTION}"
+    echo "Better ABORT with Ctrl+C. Or press any key to continue the install"
+    read
+fi
+
+KUBE_VERSION=1.28.1
+
 # Part I
 
 # Exit immediately if a command exits with a non-zero status
@@ -216,7 +230,7 @@ echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.
 # Update the apt package index, install kubelet, kubeadm and kubectl, and pin their version:
 
 sudo apt-get update
-sudo apt-get install -y kubelet kubeadm kubectl
+sudo apt-get install -y kubelet=${KUBE_VERSION}-00 kubeadm=${KUBE_VERSION}-00 kubectl=${KUBE_VERSION}-00
 sudo apt-mark hold kubelet kubeadm kubectl
 
 ONLY MASTER
@@ -229,7 +243,7 @@ ONLY MASTER
 # If necessary include arguments to change from default values
 
 
-sudo kubeadm init --cri-socket unix:///var/run/crio/crio.sock
+sudo kubeadm init --kubernetes-version=${KUBE_VERSION} --cri-socket unix:///var/run/crio/crio.sock
 
 # Install CNI Cilium
 
