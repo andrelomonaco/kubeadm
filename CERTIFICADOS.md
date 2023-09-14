@@ -111,6 +111,7 @@ cert-manager: Auto cert generation using Let's Encrypt for Ingress
 
 
 | Component | Certificate | Purpose | Localization |
+| --- | --- | ---- | --- |
 | API server | Cluster CA | Authenticate clients, TLS | Verify |
 | API server | ETCD CA | ETCD Server Authentication | Verify |
 | API server | ETCD Client cert | ETCD Client Authentication | Verify |
