@@ -19,3 +19,6 @@ https://www.baeldung.com/linux/docker-container-process-host-pid
 Share Process Namespace between Containers in a Pod
 https://kubernetes.io/docs/tasks/configure-pod-container/share-process-namespace/
 
+Share process namespace among containers in a Kubernetes Pod
+https://medium.com/surajincloud/share-process-namespace-among-containers-in-a-kubernetes-pod-59eefa449f1a
+
