@@ -22,3 +22,6 @@ https://kubernetes.io/docs/tasks/configure-pod-container/share-process-namespace
 Share process namespace among containers in a Kubernetes Pod
 https://medium.com/surajincloud/share-process-namespace-among-containers-in-a-kubernetes-pod-59eefa449f1a
 
+What have containers done for you lately?
+https://www.youtube.com/watch?v=MHv6cWjvQjM
+
