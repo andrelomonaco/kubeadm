@@ -11,6 +11,11 @@ Por padrao kubeadm cria todos os certificados necessarios para a implementacao d
 
 Por padrao os certificados sao criados com expiracao de 1 ano, porem ao se utilizar o kubeadm para uma atualizacao os certificados sao renovados automaticamente.
 
+kubeadm renews all the certificates during control plane upgrade.
+
+This feature is designed for addressing the simplest use cases; if you don't have specific requirements on certificate renewal and perform Kubernetes version upgrades regularly 
+(less than 1 year in between each upgrade), kubeadm will take care of keeping your cluster up to date and reasonably secure.
+
 Para verificar a expiracao dos certificados utilizar o seguinte comando
 
 ```
