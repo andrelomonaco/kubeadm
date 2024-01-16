@@ -229,6 +229,10 @@ echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.
 
 # Update the apt package index, install kubelet, kubeadm and kubectl, and pin their version:
 
+# Get the versions available using command apt list -a kubeadm | grep amd64
+
+export KUBE_VERSION=1.28.5-1.1
+
 sudo apt-get update
 sudo apt-get install -y kubelet=${KUBE_VERSION}-00 kubeadm=${KUBE_VERSION}-00 kubectl=${KUBE_VERSION}-00
 sudo apt-mark hold kubelet kubeadm kubectl
