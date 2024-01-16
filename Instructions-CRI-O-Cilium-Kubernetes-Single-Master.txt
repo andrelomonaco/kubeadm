@@ -21,7 +21,7 @@ if [ "$DISTRIB_RELEASE" != "22.04" ]; then
     echo "############ WARNING ############ "
     echo "################################# "
     echo
-    echo "This script only works on Ubuntu 20.04!"
+    echo "This script only works on Ubuntu 22.04!"
     echo "You're using: ${DISTRIB_DESCRIPTION}"
     echo "Better ABORT with Ctrl+C. Or press any key to continue the install"
     read
