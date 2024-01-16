@@ -27,8 +27,6 @@ if [ "$DISTRIB_RELEASE" != "22.04" ]; then
     read
 fi
 
-KUBE_VERSION=1.28.1
-
 # Part I
 
 # Exit immediately if a command exits with a non-zero status
