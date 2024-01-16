@@ -246,6 +246,7 @@ ONLY MASTER
 # Record the kubeadm join statement to use in workers lately
 # If necessary include arguments to change from default values
 
+# If necessary install in a machine with less than 2 vCPUs and 2GB include argument ignore-preflight-errors=all
 
 sudo kubeadm init --kubernetes-version=${KUBE_VERSION} --cri-socket unix:///var/run/crio/crio.sock
 
