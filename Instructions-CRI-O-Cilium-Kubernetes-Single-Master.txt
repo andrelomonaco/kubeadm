@@ -156,7 +156,7 @@ sudo sysctl --system
 # Verify that the net.bridge.bridge-nf-call-iptables, net.bridge.bridge-nf-call-ip6tables, and net.ipv4.ip_forward system variables are set to 1 
 # in your sysctl config by running the following command:
 
-sysctl net.bridge.bridge-nf-call-iptables net.bridge.bridge-nf-call-ip6tables net.ipv4.ip_forward
+sudo sysctl net.bridge.bridge-nf-call-iptables net.bridge.bridge-nf-call-ip6tables net.ipv4.ip_forward
 
 # Install CRI-O
 # https://github.com/cri-o/cri-o/blob/main/install.md#readme
