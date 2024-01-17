@@ -212,6 +212,8 @@ sudo crictl info
 # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
 # Kubernetes v 1.28
 
+export KUBE_VERSION=1.28
+
 # Update the apt package index and install packages needed to use the Kubernetes apt repository
 sudo apt-get update
 sudo apt-get install -y apt-transport-https ca-certificates curl
@@ -223,13 +225,11 @@ curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --
 # Add the appropriate Kubernetes apt repository:
 # This overwrites any existing configuration in /etc/apt/sources.list.d/kubernetes.list
 
-echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v'${KUBE_VERSION}'/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
 # Update the apt package index, install kubelet, kubeadm and kubectl, and pin their version:
 
 # Get the versions available using command apt list -a kubeadm | grep amd64
-
-export KUBE_VERSION=1.28.5-1.1
 
 sudo apt-get update
 sudo apt-get install -y kubelet=${KUBE_VERSION}-00 kubeadm=${KUBE_VERSION}-00 kubectl=${KUBE_VERSION}-00
