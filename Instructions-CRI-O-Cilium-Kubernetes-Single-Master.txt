@@ -248,6 +248,12 @@ ONLY MASTER
 
 sudo kubeadm init --kubernetes-version=${KUBE_VERSION} --cri-socket unix:///var/run/crio/crio.sock
 
+# Configure ./kube/config to be used by the current user
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
 # Install CNI Cilium
 
 CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
@@ -258,7 +264,9 @@ sha256sum --check cilium-linux-${CLI_ARCH}.tar.gz.sha256sum
 sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
 rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
 
-cilium install --version 1.14.1
+# Verify the version with cilium version before
+
+cilium install --version 1.14.5
 
 # Verify if Cluster is Ready
 
