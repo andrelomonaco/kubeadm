@@ -318,6 +318,21 @@ sudo kubeadm init --kubernetes-version=v${KUBE_VERSION}.6 --pod-network-cidr=${K
 # Verify if Control are Ready
 kubectl get nodes
 
+# Verify the kubeconfig by kube-system which will list all the pods. 
+# if you observe, there are starting twopods that are not ready status because the network plugin is not installed.
+
+kubectl get pod -n kube-system
+
+# Verify all the cluster component health statuses
+
+kubectl get --raw='/readyz?verbose'
+
+#Check the cluster-info
+kubectl cluster-info
+
+#This will show pod network CIDR which used by kube-proxy
+kubectl cluster-info dump | grep -m 1 cluster-cidr
+
 #Install Helm v3
 https://helm.sh/docs/intro/install/
 
