@@ -41,6 +41,12 @@ net.ipv6.conf.all.disable_ipv6=1
 net.ipv6.conf.default.disable_ipv6=1
 net.ipv6.conf.lo.disable_ipv6=1
 
+#How to Disable IPv6 Rules in UFW for Enhanced Firewall Security on Linux
+#https://www.makeuseof.com/disable-ipv6-rules-in-ufw-linux/
+
+sudo vim /etc/default/ufw
+#Look at the line IPv6=yes, line number 7 in this case. Change yes to no, then save the file. 
+
 sysctl -p
 
 # Confirm IPv6 was disabled
@@ -280,8 +286,8 @@ ONLY MASTER
 # Record the kubeadm join statement to use in workers lately
 # If necessary include arguments to change from default values
 
-export MASTER_NODE_IP = ${MY_PRIVATE_IP}
-export K8S_POD_NETWORK_CIDR = "10.244.0.0/16"
+export MASTER_NODE_IP=${MY_PRIVATE_IP}
+export K8S_POD_NETWORK_CIDR="10.244.0.0/16"
 
 # https://akyriako.medium.com/install-kubernetes-1-27-with-cilium-on-ubuntu-16193c7c2ac6
 # If you want to use Cilium’s kube-proxy replacement add --skip-phases=addon/kube-proxy option
@@ -299,7 +305,9 @@ export K8S_POD_NETWORK_CIDR = "10.244.0.0/16"
 
 # If necessary install in a machine with less than 2 vCPUs and 2GB include argument ignore-preflight-errors=all
 
-sudo kubeadm init --kubernetes-version=v${KUBE_VERSION}.6 --pod-network-cidr=${K8S_POD_NETWORK_CIDR} --cri-socket unix:///var/run/crio/crio.sock --ignore-preflight-errors=NumCPU,Mem
+sudo kubeadm config images pull --kubernetes-version=v${KUBE_VERSION}.6
+
+sudo kubeadm init --kubernetes-version=v${KUBE_VERSION}.6 --pod-network-cidr=${K8S_POD_NETWORK_CIDR} --cri-socket unix:///var/run/crio/crio.sock
 
 # Configure ./kube/config to be used by the current user
 
@@ -309,24 +317,6 @@ sudo kubeadm init --kubernetes-version=v${KUBE_VERSION}.6 --pod-network-cidr=${K
 
 # Verify if Control are Ready
 kubectl get nodes
-
-ONLY NEW WORKERS NODE
-ONLY NEW WORKERS NODE
-
-# Execute the following only in new workers to join cluster
-
-sudo su -
-
-# Use the command provided by kubeadm init
-# If necessary execute kubeadm token create --print-join-command on master
-
-kube join ..........
-
-# Verify you can see all the nodes including workers
-kubectl get nodes
-
-ONLY MASTER OR JUMPHOST WITH KUBECTL CONFIGURED
-ONLY MASTER OR JUMPHOST WITH KUBECTL CONFIGURED
 
 #Install Helm v3
 https://helm.sh/docs/intro/install/
@@ -362,6 +352,20 @@ rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
 kubectl get nodes
 kubectl get pod -A
 
+ONLY NEW WORKERS NODE
+ONLY NEW WORKERS NODE
+
+# Execute the following only in new workers to join cluster
+
+sudo su -
+
+# Use the command provided by kubeadm init
+# If necessary execute kubeadm token create --print-join-command on master
+
+kube join ..........
+
+# Verify you can see all the nodes including workers
+kubectl get nodes
 
 
 
