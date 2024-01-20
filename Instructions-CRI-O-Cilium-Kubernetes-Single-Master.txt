@@ -27,6 +27,43 @@ if [ "$DISTRIB_RELEASE" != "22.04" ]; then
     read
 fi
 
+MY_PRIVATE_IP=$(ip route get 8.8.8.8 | sed -n '/src/{s/.*src *\([^ ]*\).*/\1/p;q}')
+
+# Convert to root
+
+sudo su -
+
+# Convert to root
+
+sudo su -
+
+# Add the following entries in /etc/sysctl.conf file
+net.ipv6.conf.all.disable_ipv6=1
+net.ipv6.conf.default.disable_ipv6=1
+net.ipv6.conf.lo.disable_ipv6=1
+
+sysctl -p
+
+# Confirm IPv6 was disabled
+cat /proc/sys/net/ipv6/conf/all/disable_ipv6
+
+# Adjust hostname to master01 for example
+hostnamectl hostname master01
+
+# Add hostname /etc/hosts
+MY_PRIVATE_IP=$(ip route get 8.8.8.8 | sed -n '/src/{s/.*src *\([^ ]*\).*/\1/p;q}')
+sudo echo ${MY_PRIVATE_IP} 'master01' >> /etc/hosts
+
+# Exit to normal user
+exit
+
+# Confirm you can ping hostname
+
+ping master01
+
+## To DO
+## Edit /etc/hosts to include all fixed IP in case HA Cluster
+
 # Part I
 
 # Exit immediately if a command exits with a non-zero status
@@ -232,7 +269,7 @@ echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.
 # Get the versions available using command apt list -a kubeadm | grep amd64
 
 sudo apt-get update
-sudo apt-get install -y kubelet=${KUBE_VERSION}-00 kubeadm=${KUBE_VERSION}-00 kubectl=${KUBE_VERSION}-00
+sudo apt-get install -y kubelet=${KUBE_VERSION}.6-1.1 kubeadm=${KUBE_VERSION}.6-1.1 kubectl=${KUBE_VERSION}.6-1.1
 sudo apt-mark hold kubelet kubeadm kubectl
 
 ONLY MASTER
@@ -244,15 +281,36 @@ ONLY MASTER
 # Record the kubeadm join statement to use in workers lately
 # If necessary include arguments to change from default values
 
+export MASTER_NODE_IP = ${MY_PRIVATE_IP}
+export K8S_POD_NETWORK_CIDR = "10.244.0.0/16"
+
+# https://akyriako.medium.com/install-kubernetes-1-27-with-cilium-on-ubuntu-16193c7c2ac6
+# If you want to use Cilium’s kube-proxy replacement add --skip-phases=addon/kube-proxy option
+# If you want to upgrade this single control-plane kubeadm cluster to high availability in the future, you should specify the --control-plane-endpoint 
+# to set the shared endpoint for all control-plane nodes. Such an endpoint can be either a DNS name or an IP address of a load-balancer. 
+# Here we are going to go with IP addresses and we are going to use the IP address we assigned — or assigned automatically by the DHCP server of your network —
+# to the Bridge NIC ofyour virtual machine. If the latter is the case, make sure that this IP address will not periodically change.
+
+# sudo kubeadm init \
+#  --apiserver-advertise-address=$MASTER_NODE_IP \
+#  --pod-network-cidr=$K8S_POD_NETWORK_CIDR \
+#  --skip-phases=addon/kube-proxy \
+#  --control-plane-endpoint $MASTER_NODE_IP \
+
+
 # If necessary install in a machine with less than 2 vCPUs and 2GB include argument ignore-preflight-errors=all
 
-sudo kubeadm init --kubernetes-version=${KUBE_VERSION} --cri-socket unix:///var/run/crio/crio.sock
+sudo kubeadm init --kubernetes-version=v${KUBE_VERSION}.6 --pod-network-cidr=${K8S_POD_NETWORK_CIDR} --cri-socket unix:///var/run/crio/crio.sock --ignore-preflight-errors=NumCPU,Mem
 
 # Configure ./kube/config to be used by the current user
 
   mkdir -p $HOME/.kube
   sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
   sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+# Verify you can see the nodes
+
+kubectl get nodes
 
 # Install CNI Cilium
 
