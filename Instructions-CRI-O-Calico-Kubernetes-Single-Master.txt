@@ -1,1 +1,388 @@
+# Instructions to install a single master node K8s cluster with Ubuntu 22.04 (Don't use server minimal installation), CRI-O, Cilium and Kubernetes
+#
+#
+# Copyright (c) 2023-2023 K8SEC.COM.BR
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+source /etc/lsb-release
+if [ "$DISTRIB_RELEASE" != "22.04" ]; then
+    echo "################################# "
+    echo "############ WARNING ############ "
+    echo "################################# "
+    echo
+    echo "This script only works on Ubuntu 22.04!"
+    echo "You're using: ${DISTRIB_DESCRIPTION}"
+    echo "Better ABORT with Ctrl+C. Or press any key to continue the install"
+    read
+fi
+
+MY_PRIVATE_IP=$(ip route get 8.8.8.8 | sed -n '/src/{s/.*src *\([^ ]*\).*/\1/p;q}')
+
+# Convert to root
+
+sudo su -
+
+# Disable IPv6 Ubuntu
+# https://www.thegeekdiary.com/how-to-disable-ipv6-on-ubuntu-22-04-lts-jammy-jellyfish/
+
+# Add the following entries in /etc/sysctl.conf file
+net.ipv6.conf.all.disable_ipv6=1
+net.ipv6.conf.default.disable_ipv6=1
+net.ipv6.conf.lo.disable_ipv6=1
+
+#How to Disable IPv6 Rules in UFW for Enhanced Firewall Security on Linux
+#https://www.makeuseof.com/disable-ipv6-rules-in-ufw-linux/
+
+sudo vim /etc/default/ufw
+#Look at the line IPv6=yes, line number 7 in this case. Change yes to no, then save the file. 
+
+sysctl -p
+
+# Confirm IPv6 was disabled
+cat /proc/sys/net/ipv6/conf/all/disable_ipv6
+
+# Adjust hostname to master01 for example
+hostnamectl hostname master01
+
+# Add hostname /etc/hosts
+MY_PRIVATE_IP=$(ip route get 8.8.8.8 | sed -n '/src/{s/.*src *\([^ ]*\).*/\1/p;q}')
+sudo echo ${MY_PRIVATE_IP} 'master01' >> /etc/hosts
+
+# Exit to normal user
+exit
+
+# Confirm you can ping hostname
+
+ping master01
+
+## To DO
+## Edit /etc/hosts to include all fixed IP in case HA Cluster
+
+# Part I
+
+# Exit immediately if a command exits with a non-zero status
+
+set -e
+
+# cloud-init is a tool for automatically initializing and customizing an instance of a Linux distribution.
+# Create an empty file to prevent the service from starting  
+
+sudo touch /etc/cloud/cloud-init.disabled
+
+# Verify if the system is using/running systemd. If the command below returns systemd indicates that is running systemd. If returns init no.
+# If is running systemd please configure the cgroups to use the system option 
+
+ps --no-headers -o comm 1
+
+# On Linux, control groups are used to constrain resources that are allocated to processes
+# The cgroupfs driver is the default cgroup driver in the kubelet. When the cgroupfs driver is used, 
+# the kubelet and the container runtime directly interface with the cgroup filesystem to configure cgroups.
+# The cgroupfs driver is not recommended when systemd is the init system because systemd expects a single cgroup manager on the system.
+# Additionally, if you use cgroup v2, use the systemd cgroup driver instead of cgroupfs
+
+# Verify the cgroup version on Linux Nodes
+# For cgroup v2, the output is cgroup2fs. For cgroup v1, the output is tmpfs.
+# When possible, try to install with cgroup v2
+
+stat -fc %T /sys/fs/cgroup/
+
+# generic instructions for Linux distributions before installing kubeadm
+# https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#before-you-begin
+
+# Disable swapping temporarily
+
+sudo swapoff -a
+
+# Disable swapping permanently. Necessary a reboot
+
+sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+
+# Setting Timezone
+# In this case America/Sao_Paulo
+
+sudo timedatectl set-timezone America/Sao_Paulo
+
+# Verify Timezone and NTP
+
+timedatectl status
+
+# Upgrade and Reboot
+
+sudo apt update && sudo apt -y full-upgrade
+sudo reboot
+
+# Part II
+
+# Setting Up Single Control Node Firewall - Uncomplicated Firewall (UFW)
+# Port 6443 for the Kubernetes API server.
+# Port 2379:2380 for the ETCD server client API.
+# Port 10250 for the Kubelet API.
+# Port 10259 for the kube scheduler.
+# Port 10257 for the Kube controller manager.
+# Firewall rules in Linux are applied in the order they are listed. 
+# When you start a container, the Container Runtime will insert the rules yourvcontainers need before existing rules and the rule-set you maintain with ufw.
+# In other words Container Runtime exposing a port takes precedence over a subsequent ufw rules closing a particular port.
+# Enabling Hubble requires the TCP port 4244 to be open on all nodes running Cilium. This is required for Relay to operate correctly.
+# Port 8472 for overlay network, VxLAN backend (master and worker nodes)
+
+sudo ufw allow 22/tcp
+
+sudo ufw allow 6443/tcp
+sudo ufw allow 2379:2380/tcp
+sudo ufw allow 10250/tcp
+sudo ufw allow 10259/tcp
+sudo ufw allow 10257/tcp
+sudo ufw allow 4244/tcp
+sudo ufw allow 8472/udp
+
+sudo ufw enable
+sudo ufw status
+
+# Verify swap off using swapon -s or free -h. swapon -s must return nothing
+
+swapon -s
+
+# Append the overlay and br_netfilter kernel modules to the/etc/modules-load.d/k8s.conf file 
+# which is necessary for the proper functioning of the container runtime when your servers reboot.
+# The overlay module is used to support overlay filesystems.
+# Overlay filesystems allow the efficient use of storage space by creating layers on top of each other. 
+# This means that multiple containers can share a base image while having their own writable top layer.
+
+# The br_netfilter module is required for the iptables rules that are used for network address translation (NAT) with bridge networking. 
+# Bridge networking is a way to connect multiple containers together into a single network. 
+# By using a bridge network, all containers in the network can communicate with each other and with the outside world.
+# This module is required to enable transparent masquerading and to facilitate Virtual Extensible LAN (VxLAN) 
+# traffic for communication between Kubernetes pods across the cluster. 
+
+cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+overlay
+br_netfilter
+EOF
+
+# Enable the above kernel modules for the current session manually 
+
+sudo modprobe overlay
+sudo modprobe br_netfilter
+
+# Confirm that the previous kernel modules are loaded and available using the following commands:
+
+lsmod | grep overlay
+lsmod | grep br_netfilter
+
+# Forwarding IPv4 and letting iptables see bridged traffic
+# sysctl params required by setup, params persist across reboots
+
+cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-iptables  = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward                 = 1
+EOF
+
+# Apply sysctl params without reboot
+
+sudo sysctl --system
+
+# Verify that the net.bridge.bridge-nf-call-iptables, net.bridge.bridge-nf-call-ip6tables, and net.ipv4.ip_forward system variables are set to 1 
+# in your sysctl config by running the following command:
+
+sudo sysctl net.bridge.bridge-nf-call-iptables net.bridge.bridge-nf-call-ip6tables net.ipv4.ip_forward
+
+# Install CRI-O
+# https://github.com/cri-o/cri-o/blob/main/install.md#readme
+# https://www.linuxtechi.com/install-crio-container-runtime-on-ubuntu/#google_vignette
+# v1.28.0
+
+sudo apt update
+sudo apt install apt-transport-https ca-certificates curl gnupg2 software-properties-common -y
+
+# Convert to root
+
+sudo su -
+
+# Create two environment variables OS* and VERSION on all your servers and set them desidered values using the commands below:
+
+export OS=xUbuntu_22.04
+export VERSION=1.28
+
+echo "deb [signed-by=/usr/share/keyrings/libcontainers-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+echo "deb [signed-by=/usr/share/keyrings/libcontainers-crio-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$VERSION/$OS/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$VERSION.list
+
+mkdir -p /usr/share/keyrings
+curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | gpg --dearmor -o /usr/share/keyrings/libcontainers-archive-keyring.gpg
+curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$VERSION/$OS/Release.key | gpg --dearmor -o /usr/share/keyrings/libcontainers-crio-archive-keyring.gpg
+
+apt-get update
+apt-get install cri-o cri-o-runc -y
+
+# Note: as of 1.24.0, the cri-o package no longer depends on containernetworking-plugins package. 
+# Removing this dependency allows users to install their own CNI plugins without having to remove files first. 
+
+# Exit root, back to normal user
+exit
+
+# Install CRI-O tools
+
+sudo apt install -y cri-tools
+
+# Enable and Start CRI-O Daemon
+
+sudo systemctl daemon-reload
+sudo systemctl enable crio
+sudo systemctl start crio
+
+# Verify CRI-O
+
+sudo crictl --runtime-endpoint unix:///var/run/crio/crio.sock version
+
+# Verify CRI-O
+# NetworkReady false because no CNI installed yet
+
+sudo crictl info
+
+# After install Container Runtime you can install Kubeadm
+# https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
+# Kubernetes v 1.28
+
+export KUBE_VERSION=1.28
+
+# Update the apt package index and install packages needed to use the Kubernetes apt repository
+sudo apt-get update
+sudo apt-get install -y apt-transport-https ca-certificates curl
+
+# Download the public signing key for the Kubernetes package repositories. 
+# The same signing key is used for all repositories so you can disregard the version in the URL:
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+# Add the appropriate Kubernetes apt repository:
+# This overwrites any existing configuration in /etc/apt/sources.list.d/kubernetes.list
+
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v'${KUBE_VERSION}'/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+# Update the apt package index, install kubelet, kubeadm and kubectl, and pin their version:
+
+# Get the versions available using command apt list -a kubeadm | grep amd64
+
+sudo apt-get update
+sudo apt-get install -y kubelet=${KUBE_VERSION}.6-1.1 kubeadm=${KUBE_VERSION}.6-1.1 kubectl=${KUBE_VERSION}.6-1.1
+sudo apt-mark hold kubelet kubeadm kubectl
+
+ONLY MASTER
+ONLY MASTER
+ONLY MASTER
+
+# Install Cluster
+# Only Master
+# Record the kubeadm join statement to use in workers lately
+# If necessary include arguments to change from default values
+
+export MASTER_NODE_IP=${MY_PRIVATE_IP}
+export K8S_POD_NETWORK_CIDR="10.244.0.0/16"
+
+# https://akyriako.medium.com/install-kubernetes-1-27-with-cilium-on-ubuntu-16193c7c2ac6
+# If you want to use Cilium’s kube-proxy replacement add --skip-phases=addon/kube-proxy option
+# If you want to upgrade this single control-plane kubeadm cluster to high availability in the future, you should specify the --control-plane-endpoint 
+# to set the shared endpoint for all control-plane nodes. Such an endpoint can be either a DNS name or an IP address of a load-balancer. 
+# Here we are going to go with IP addresses and we are going to use the IP address we assigned — or assigned automatically by the DHCP server of your network —
+# to the Bridge NIC ofyour virtual machine. If the latter is the case, make sure that this IP address will not periodically change.
+
+# sudo kubeadm init \
+#  --apiserver-advertise-address=$MASTER_NODE_IP \
+#  --pod-network-cidr=$K8S_POD_NETWORK_CIDR \
+#  --skip-phases=addon/kube-proxy \
+#  --control-plane-endpoint $MASTER_NODE_IP \
+
+
+# If necessary install in a machine with less than 2 vCPUs and 2GB include argument ignore-preflight-errors=all
+
+sudo kubeadm config images pull --kubernetes-version=v${KUBE_VERSION}.6
+
+sudo kubeadm init --kubernetes-version=v${KUBE_VERSION}.6 --pod-network-cidr=${K8S_POD_NETWORK_CIDR} --cri-socket unix:///var/run/crio/crio.sock
+
+# Configure ./kube/config to be used by the current user
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+# Verify if Control are Ready
+kubectl get nodes
+
+# Verify the kubeconfig by kube-system which will list all the pods. 
+# if you observe, there are starting twopods that are not ready status because the network plugin is not installed.
+
+kubectl get pod -n kube-system
+
+# Verify all the cluster component health statuses
+
+kubectl get --raw='/readyz?verbose'
+
+#Check the cluster-info
+kubectl cluster-info
+
+#This will show pod network CIDR which used by kube-proxy
+kubectl cluster-info dump | grep -m 1 cluster-cidr
+
+#Install Helm v3
+https://helm.sh/docs/intro/install/
+
+curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+sudo apt-get install apt-transport-https --yes
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+sudo apt-get update
+sudo apt-get install helm
+
+# Verify Helm installation
+helm version --short
+
+# Install CNI Cilium
+# Installation using kubeadm
+# https://docs.cilium.io/en/stable/installation/k8s-install-kubeadm/
+
+helm repo add cilium https://helm.cilium.io/
+helm install cilium cilium/cilium --version 1.14.6 --namespace kube-system
+
+# Install cilium client 
+
+CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
+CLI_ARCH=amd64
+if [ "$(uname -m)" = "aarch64" ]; then CLI_ARCH=arm64; fi
+curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
+sha256sum --check cilium-linux-${CLI_ARCH}.tar.gz.sha256sum
+sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
+rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
+
+# Verify if Cluster is Ready
+
+kubectl get nodes
+kubectl get pod -A
+
+ONLY NEW WORKERS NODE
+ONLY NEW WORKERS NODE
+
+# Execute the following only in new workers to join cluster
+
+sudo su -
+
+# Use the command provided by kubeadm init
+# If necessary execute kubeadm token create --print-join-command on master
+
+kube join ..........
+
+# Verify you can see all the nodes including workers
+kubectl get nodes
+
+
+
+
 
