@@ -349,22 +349,23 @@ sudo apt-get install helm
 # Verify Helm installation
 helm version --short
 
-# Install CNI Cilium
-# Installation using kubeadm
-# https://docs.cilium.io/en/stable/installation/k8s-install-kubeadm/
+# Install CNI Calico
+# Installation using kubeadm and helm
+# https://docs.tigera.io/calico/latest/getting-started/kubernetes/helm
 
-helm repo add cilium https://helm.cilium.io/
-helm install cilium cilium/cilium --version 1.14.6 --namespace kube-system
+helm repo add projectcalico https://docs.tigera.io/calico/charts
+kubectl create namespace tigera-operator
+helm install calico projectcalico/tigera-operator --version v3.27.0 --namespace tigera-operator
 
-# Install cilium client 
+# Confirm that all of the pods are running with the following command
+watch kubectl get pods -n calico-system
 
-CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
-CLI_ARCH=amd64
-if [ "$(uname -m)" = "aarch64" ]; then CLI_ARCH=arm64; fi
-curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
-sha256sum --check cilium-linux-${CLI_ARCH}.tar.gz.sha256sum
-sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
-rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
+# Enable kubectl to manage Calico APIs
+# Starting in Calico v3.20.0, new operator-based installations of Calico include the API server component by default
+
+kubectl get tigerastatus apiserver
+kubectl api-resources | grep '\sprojectcalico.org'
+kubectl get ippools
 
 # Verify if Cluster is Ready
 
