@@ -44,7 +44,7 @@ net.ipv6.conf.lo.disable_ipv6=1
 #How to Disable IPv6 Rules in UFW for Enhanced Firewall Security on Linux
 #https://www.makeuseof.com/disable-ipv6-rules-in-ufw-linux/
 
-sudo vim /etc/default/ufw
+vim /etc/default/ufw
 #Look at the line IPv6=yes, line number 7 in this case. Change yes to no, then save the file. 
 
 sysctl -p
@@ -143,8 +143,12 @@ sudo ufw allow 2379:2380/tcp
 sudo ufw allow 10250/tcp
 sudo ufw allow 10259/tcp
 sudo ufw allow 10257/tcp
-sudo ufw allow 4244/tcp
-sudo ufw allow 8472/udp
+
+# Calico
+
+sudo ufw allow 179/tcp
+sudo ufw allow 4789/udp
+sudo ufw allow 5473/tcp
 
 sudo ufw enable
 sudo ufw status
