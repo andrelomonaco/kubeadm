@@ -7,6 +7,19 @@ sudo apt update
 sudo apt update && sudo apt -y full-upgrade
 sudo reboot
 
+# Sudo to root
+sudo su -
+
+# Adjust hostname to jumpHost for example
+hostnamectl hostname jumpHost
+
+# Add hostname /etc/hosts
+MY_PRIVATE_IP=$(ip route get 8.8.8.8 | sed -n '/src/{s/.*src *\([^ ]*\).*/\1/p;q}')
+echo ${MY_PRIVATE_IP} 'jumpHost' >> /etc/hosts
+
+# Return to normal user
+exit
+
 # Firewall
 
 sudo ufw allow 22/tcp
