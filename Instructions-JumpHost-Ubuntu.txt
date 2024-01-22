@@ -11,7 +11,7 @@ sudo reboot
 sudo su -
 
 # Adjust hostname to jumpHost for example
-hostnamectl hostname jumpHost
+sudo hostnamectl hostname jumpHost
 
 # Add hostname /etc/hosts
 MY_PRIVATE_IP=$(ip route get 8.8.8.8 | sed -n '/src/{s/.*src *\([^ ]*\).*/\1/p;q}')
