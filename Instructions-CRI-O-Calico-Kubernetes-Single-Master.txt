@@ -1,4 +1,4 @@
-# Instructions to install a single master node K8s cluster with Ubuntu 22.04 (Don't use server minimal installation), CRI-O, Cilium and Kubernetes
+# Instructions to install a single master node K8s cluster with Ubuntu 22.04 (Don't use server minimal installation), CRI-O, Calico and Kubernetes
 #
 #
 # Copyright (c) 2023-2023 K8SEC.COM.BR
