@@ -150,7 +150,7 @@ sudo ufw allow 179/tcp
 sudo ufw allow 4789/udp
 sudo ufw allow 5473/tcp
 
-sudo ufw enable
+sudo ufw --force enable
 sudo ufw status
 
 # Verify swap off using swapon -s or free -h. swapon -s must return nothing
