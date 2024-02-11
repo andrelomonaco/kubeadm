@@ -45,7 +45,7 @@ net.ipv6.conf.lo.disable_ipv6=1
 #https://www.makeuseof.com/disable-ipv6-rules-in-ufw-linux/
 
 vim /etc/default/ufw
-#Look at the line IPv6=yes, line number 7 in this case. Change yes to no, then save the file. 
+#Look at the line IPV6=yes, line number 7 in this case. Change yes to no, then save the file. 
 
 sysctl -p
 
