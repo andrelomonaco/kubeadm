@@ -246,6 +246,7 @@ sudo systemctl start crio
 
 # Verify CRI-O
 
+sudo systemctl status crio
 sudo crictl --runtime-endpoint unix:///var/run/crio/crio.sock version
 
 # Verify CRI-O
