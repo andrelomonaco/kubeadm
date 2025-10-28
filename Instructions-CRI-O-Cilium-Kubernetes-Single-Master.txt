@@ -384,6 +384,21 @@ kube join ..........
 # Verify you can see all the nodes including workers
 kubectl get nodes
 
+# Install kubectl Windows 1.28.6
+
+https://dl.k8s.io/release/v1.28.6/bin/windows/amd64/kubectl.exe
+pscp lomonaco@master01:.kube/config .
+
+# Install calicoctl Windows 3.27
+
+https://github.com/projectcalico/calico/releases/download/v3.27.0/calicoctl-windows-amd64.exe" -OutFile "calicoctl.exe" 
+
+# Running calicoctl
+
+set KUBECONFIG=C:\Users\AndreGustavoLomonaco\.kube\config
+calicoctl version
+
+
 
 
 
