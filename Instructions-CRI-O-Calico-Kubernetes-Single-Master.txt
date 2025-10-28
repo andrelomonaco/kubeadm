@@ -135,14 +135,19 @@ sudo reboot
 # In other words Container Runtime exposing a port takes precedence over a subsequent ufw rules closing a particular port.
 # Enabling Hubble requires the TCP port 4244 to be open on all nodes running Cilium. This is required for Relay to operate correctly.
 # Port 8472 for overlay network, VxLAN backend (master and worker nodes)
+# MetalLB L2 operating mode, traffic on port 7946 (TCP & UDP)
 
 sudo ufw allow 22/tcp
-
 sudo ufw allow 6443/tcp
 sudo ufw allow 2379:2380/tcp
 sudo ufw allow 10250/tcp
 sudo ufw allow 10259/tcp
 sudo ufw allow 10257/tcp
+
+# MetalLB L2 Operating Mode
+
+sudo ufw allow 7946/tcp
+sudo ufw allow 7946/udp
 
 # Calico
 
