@@ -412,7 +412,7 @@ pscp lomonaco@master01:.kube/config .
 
 https://github.com/projectcalico/calico/releases/download/v3.31.0/calicoctl-windows-amd64.exe
 
-# Copiar para um diretorio que esteja no PATH do Windows
+# Copy to a directory which is in Windows PATH
 
 # Running calicoctl
 
