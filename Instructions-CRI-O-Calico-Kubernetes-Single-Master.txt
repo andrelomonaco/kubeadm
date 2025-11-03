@@ -419,6 +419,12 @@ https://github.com/projectcalico/calico/releases/download/v3.31.0/calicoctl-wind
 set KUBECONFIG=C:\Users\AndreGustavoLomonaco\.kube\config
 calicoctl version
 
+# Install NFS Client
+
+sudo apt-get update
+sudo apt-get install nfs-common -y
+
+
 
 
 
