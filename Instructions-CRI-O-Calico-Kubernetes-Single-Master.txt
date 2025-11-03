@@ -227,21 +227,9 @@ export CRIO_VERSION=1.24
 echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /"|sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
 echo "deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$CRIO_VERSION/$OS/ /"|sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION.list
 
+sudo wget -qO - https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION/$OS/Release.key | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/crio-stable-$CRIO_VERSION.gpg
 
-sudo wget -qO - https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION/$OS/Release.key |
-  sudo gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/download-cri-o.gpg --import -
-
-sudo wget -qO - https://download.opensuse.org/repositories/devel:kubic:libcontainers:/stable/$OS/Release.key |
-  sudo gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/download-libcontainers.gpg --import -
-
-
-curl -L https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION/$OS/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/crio-stable-$CRIO_VERSION.gpg
-    curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/libcontainers-stable.gpg
-
-
-curl -L https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION/$OS/Release.key | sudo apt-key add -
-curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | sudo apt-key add -
-
+apt-key list
 apt-get update
 apt-get install cri-o cri-o-runc -y
 
