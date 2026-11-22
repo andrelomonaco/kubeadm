@@ -59,6 +59,8 @@ hostnamectl hostname master01
 MY_PRIVATE_IP=$(ip route get 8.8.8.8 | sed -n '/src/{s/.*src *\([^ ]*\).*/\1/p;q}')
 sudo echo ${MY_PRIVATE_IP} '$HOSTNAME' >> /etc/hosts
 
+# Remove the entry with 127.0.0.1 related with hostname
+
 # Exit to normal user
 exit
 
@@ -105,7 +107,7 @@ stat -fc %T /sys/fs/cgroup/
 sudo swapoff -a
 
 # Disable swapping permanently. Necessary a reboot
-
+# Isn't working, verify why ?
 sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 
 # Verify if swap is disabled
@@ -211,6 +213,8 @@ sudo sysctl --system
 sudo sysctl net.bridge.bridge-nf-call-iptables net.bridge.bridge-nf-call-ip6tables net.ipv4.ip_forward
 
 # Install CRI-O
+# https://cri-o.io/
+# https://kubernetes.io/blog/2023/10/10/cri-o-community-package-infrastructure/
 # https://github.com/cri-o/cri-o/blob/main/install.md#readme
 # https://www.linuxtechi.com/install-crio-container-runtime-on-ubuntu/#google_vignette
 # v1.28.0
