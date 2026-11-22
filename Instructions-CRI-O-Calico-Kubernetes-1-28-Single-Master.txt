@@ -57,14 +57,14 @@ hostnamectl hostname master01
 
 # Add hostname /etc/hosts
 MY_PRIVATE_IP=$(ip route get 8.8.8.8 | sed -n '/src/{s/.*src *\([^ ]*\).*/\1/p;q}')
-sudo echo ${MY_PRIVATE_IP} 'master01' >> /etc/hosts
+sudo echo ${MY_PRIVATE_IP} '$HOSTNAME' >> /etc/hosts
 
 # Exit to normal user
 exit
 
 # Confirm you can ping hostname
 
-ping master01
+ping $HOSTNAME
 
 ## To DO
 ## Edit /etc/hosts to include all fixed IP in case HA Cluster
@@ -107,6 +107,9 @@ sudo swapoff -a
 # Disable swapping permanently. Necessary a reboot
 
 sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+
+# Verify if swap is disabled
+swapon --show
 
 # Setting Timezone
 # In this case America/Sao_Paulo
@@ -222,16 +225,17 @@ sudo su -
 # Create two environment variables OS* and VERSION on all your servers and set them desidered values using the commands below:
 
 export OS=xUbuntu_22.04
-export CRIO_VERSION=1.24
+export CRIO_VERSION=v1.28
 
-echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /"|sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
-echo "deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$CRIO_VERSION/$OS/ /"|sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION.list
+curl -fsSL https://download.opensuse.org/repositories/isv:/cri-o:/stable:/$CRIO_VERSION/deb/Release.key |
+    gpg --dearmor -o /etc/apt/keyrings/cri-o-apt-keyring.gpg
 
-sudo wget -qO - https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION/$OS/Release.key | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/crio-stable-$CRIO_VERSION.gpg
+echo "deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] https://download.opensuse.org/repositories/isv:/cri-o:/stable:/$CRIO_VERSION/deb/ /" |
+    tee /etc/apt/sources.list.d/cri-o.list
 
 apt-key list
 apt-get update
-apt-get install cri-o cri-o-runc -y
+apt-get install cri-o -y
 
 # Note: as of 1.24.0, the cri-o package no longer depends on containernetworking-plugins package. 
 # Removing this dependency allows users to install their own CNI plugins without having to remove files first. 
@@ -241,6 +245,7 @@ exit
 
 # Install CRI-O tools
 
+# Necessary to install Kubernetes repositories before
 sudo apt install -y cri-tools
 
 # Enable and Start CRI-O Daemon
@@ -252,11 +257,14 @@ sudo systemctl start crio
 # Verify CRI-O
 
 sudo systemctl status crio
+
+# Necessary to install Kubernetes repositories before
 sudo crictl --runtime-endpoint unix:///var/run/crio/crio.sock version
 
 # Verify CRI-O
 # NetworkReady false because no CNI installed yet
 
+# Necessary to install Kubernetes repositories before
 sudo crictl info
 
 # After install Container Runtime you can install Kubeadm
